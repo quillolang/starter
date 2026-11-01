@@ -1,0 +1,8 @@
+# The databases a run makes
+*.db
+*.db-wal
+*.db-shm
+# Settings and secrets: keep them out of version control
+.env
+# Quillo's own: get-quillo.sh's binary, and quillo build's libraries
+.quillo/

@@ -1,0 +1,21 @@
+// A Quillo program. This file is the program: the files it uses and its routes.
+//
+//   quillo run --watch      then open http://127.0.0.1:8080
+//   quillo check            checks every file it uses, without running
+//
+// No quillo yet? `sh get-quillo.sh` puts the release this program is written
+// for in .quillo/bin/: then `.quillo/bin/quillo run --watch`.
+//
+//   lib/greet.qwe     functions, for the server and the browser
+//   ui/page.qwe       the frame every page uses, and a component
+
+use lib/greet.qwe
+use ui/page.qwe
+
+route GET / =
+    <Page title="hello">
+        <h1>{greeting("world")}</h1>
+        <Counter start={0}/>
+    </Page>
+
+route GET /hello/:name = greeting(name)

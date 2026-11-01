@@ -1,0 +1,3 @@
+// Plain functions: the server and the browser both use them.
+
+fn greeting(name: str) -> str = `Hello, ${name}!`
