@@ -12,7 +12,7 @@ use lib/greet.qwe
 use ui/page.qwe
 
 route GET / =
-    <Page title="hello">
+    <Page title="hello" description="A Quillo program to start from: a page, a component that runs in the browser, and a function the server and the browser both use.">
         <h1>{greeting("world")}</h1>
         <Counter start={0}/>
     </Page>

@@ -29,6 +29,7 @@ use ui/theme_switch.qwe
 
 // Every path renders the app; the server answers 404 for one that is no tab.
 route GET /*rest {
-    let page = <Page title="spa"><App theme={theme_now()}/></Page>
-    tab_of(request.path) == "missing" ? respond(404, page) : page
+    let tab = tab_of(request.path)
+    let page = <Page title="spa" description={tab_description(tab)}><App theme={theme_now()}/></Page>
+    tab == "missing" ? respond(404, page) : page
 }

@@ -2,6 +2,16 @@
 
 use lib/notes.qwe
 
+let list_description = "Notes kept in SQLite, on pages made on the server: write one, read it, delete it. The forms work with JavaScript off."
+
+// A note's description: its text on one line, cut near 155 characters, or its
+// title when it has no text.
+fn summary(note: Note) -> str {
+    let text = split(note.body, "\n") | map((l) => trim(l)) | filter((l) => l != "") | join(" ")
+    let t = text == "" ? note.title : text
+    len(t) > 155 ? slice(t, 0, 154) + "…" : t
+}
+
 view NoteList(notes: list<Note>) =
     <section>
         <h2>Notes</h2>

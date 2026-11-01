@@ -15,6 +15,16 @@ fn tab_of(path: str) -> str = match split(path, "/") | filter((s) => s != "") {
     _ => "missing"
 }
 
+// What each tab is, for the page the server makes at its address: search engines
+// read that page, and show this under its title.
+fn tab_description(tab: str) -> str = match tab {
+    "home" => "A single-page app in Quillo: tabs that change without reloading the page, with a note and a task list kept in SQLite and live on every open page."
+    "tasks" => "A task list kept in SQLite: add a task or tick one, and every open page shows it at once, without a reload."
+    "notes" => "A note kept in SQLite as you type, half a second after you stop, and live on every other open page."
+    "settings" => "The app's theme, Quillo UI's: System, Light or Dark, kept in a cookie so every page is made in it."
+    _ => "There is no tab at this address."
+}
+
 view Tab(href: str, here: bool, children) =
     <a {href} aria-current={here ? "page" : null}>{children}</a>
 

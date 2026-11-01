@@ -25,7 +25,7 @@ use ui/page.qwe
 use ui/theme_switch.qwe
 
 route GET / =
-    <Page title="Notes" back="/">
+    <Page title="Notes" back="/" description={list_description}>
         <NoteList notes={all_notes()}/>
         <NoteForm/>
     </Page>
@@ -33,15 +33,15 @@ route GET / =
 route POST /notes { form: { title: str, body: str } } {
     let r = add_note(title, body)
     is_err(r)
-        ? respond(422, <Page title="Notes" back="/"><NoteList notes={all_notes()}/><NoteForm {title} {body} problem={r.error}/></Page>)
+        ? respond(422, <Page title="Notes" back="/" description={list_description}><NoteList notes={all_notes()}/><NoteForm {title} {body} problem={r.error}/></Page>)
         : redirect(`/notes/${r}`)
 }
 
 route GET /notes/:id(int) {
     let note = get_note(id)
     note == null
-        ? respond(404, <Page title="Not found" back="/"><Missing/></Page>)
-        : <Page title={note.title} back={`/notes/${id}`}><NotePage {note}/></Page>
+        ? respond(404, <Page title="Not found" back="/" description="There is no such note."><Missing/></Page>)
+        : <Page title={note.title} back={`/notes/${id}`} description={summary(note)}><NotePage {note}/></Page>
 }
 
 route POST /notes/:id(int)/delete {

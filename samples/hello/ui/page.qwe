@@ -18,12 +18,14 @@ h1 { margin: 0 0 1rem; font-size: 2rem; letter-spacing: -.02em; }
 .theme-switch button:focus-visible { outline: none; box-shadow: var(--ui-focus); }
 `
 
-view Page(title: str, children) =
+// description: what the page is, as search engines show it under its title.
+view Page(title: str, description: str, children) =
     <html lang="en" class={theme_class(theme_now())}>
         <head>
             <meta charset="utf-8"/>
             <meta name="viewport" content="width=device-width, initial-scale=1"/>
             <title>{title}</title>
+            <meta name="description" content={description}/>
             <style>{theme_css + page_css}</style>
         </head>
         <body.ui-root>

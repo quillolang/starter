@@ -30,6 +30,7 @@ page=$(get "$base/")
 has "the theme's variables are on the page" "$page" "--ui-accent:"
 has "<body class=\"ui-root\">" "$page" '<body class="ui-root">'
 has "the switch is on the page" "$page" 'aria-label="Theme"'
+has "a description for search engines (Lighthouse's SEO)" "$page" '<meta name="description" content="'
 has "no theme kept: <html> follows the system" "$page" '<html lang="en">'
 has "no theme kept: System is pressed" "$page" 'aria-pressed="true">System'
 has "dark kept: <html class=\"ui-dark\">" "$(get -H 'Cookie: theme=dark' "$base/")" '<html class="ui-dark" lang="en">'
@@ -50,6 +51,7 @@ fi
 case "$sample" in
 hello)
     has "the Counter component" "$page" 'data-c="Counter"'
+    has "its description" "$page" 'content="A Quillo program to start from: a page'
     is "/hello/Ana" "$(get "$base/hello/Ana")" "Hello, Ana!"
     ;;
 spa)
@@ -59,6 +61,9 @@ spa)
         is "/$tab answers" "$(code "$base/$tab")" 200
         has "/$tab: its tab is current" "$(get "$base/$tab")" "<a href=\"/$tab\" aria-current=\"page\">"
     done
+    has "each tab its own description: Tasks" "$(get "$base/tasks")" 'content="A task list kept in SQLite'
+    has "each tab its own description: Notes" "$(get "$base/notes")" 'content="A note kept in SQLite as you type'
+    has "a path that is no tab: a description too" "$(get "$base/nope")" 'content="There is no tab at this address."'
     is "a path that is no tab: 404" "$(code "$base/nope")" 404
     is "a tab's path, one deeper: 404" "$(code "$base/tasks/1")" 404
     has "a task added" "$(rpc add_task '["Water the plants"]')" '"text":"Water the plants","done":0}]}'
@@ -84,6 +89,7 @@ ssr)
     case "$added" in "303 -> /notes/"*) pass "a note posted: 303 to its page" ;; *) fail "a note posted: $added" ;; esac
     note=${added#"303 -> "}
     has "its page" "$(get "$base$note")" "<h2>From the test</h2>"
+    has "its description: its text, on one line" "$(get "$base$note")" '<meta name="description" content="Two lines"'
     is "a blank title: 422" "$(code -d 'title=%20%20&body=kept' "$base/notes")" 422
     has "and the reason, with what was typed" "$(get -d 'title=%20%20&body=kept%20text' "$base/notes")" "a note needs a title"
     has "what was typed is kept" "$(get -d 'title=%20%20&body=kept%20text' "$base/notes")" ">kept text</textarea>"
