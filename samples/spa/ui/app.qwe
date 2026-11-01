@@ -2,6 +2,10 @@
 // the address names. It runs in the browser once the page has loaded, so moving
 // between tabs changes only the tab, and what App holds stays.
 
+// Where the note is kept: this browser's localStorage, which every program served
+// from this address shares, hence a name of the starter's own.
+let note_key = "starter.spa.note"
+
 use lib/tasks.qwe
 use ui/theme_switch.qwe
 
@@ -76,7 +80,13 @@ component App(theme: str) {
     state note = ""
     let path = url().path
     let tab = tab_of(path)
-    <div.app>
+    // The note comes back from this browser once the page runs: it survives a
+    // reload and a restart of the server. A browser that keeps nothing (storage
+    // turned off) gives an error, and the note starts empty.
+    <div.app @mount={(_el) => {
+        let saved = js("localStorage.getItem", note_key)
+        if !is_err(saved) && saved != null { note = saved }
+    }}>
         <header.bar>
             <b>spa</b>
             <ThemeSwitch start={theme}/>
@@ -94,9 +104,13 @@ component App(theme: str) {
                 "notes" =>
                     <section>
                         <h2>Notes</h2>
-                        <textarea.note bind:value={note} placeholder="Write here, open another tab, come back" aria-label="Note"></textarea>
-                        <p class="muted">{len(note)} characters. The App component holds them, so they stay
-                        while you move between tabs; a reload starts afresh.</p>
+                        <textarea.note value={note} placeholder="Write here, reload, come back tomorrow" aria-label="Note"
+                            @input={(e) => {
+                                note = e.value
+                                js("localStorage.setItem", note_key, e.value)
+                            }}></textarea>
+                        <p class="muted">{len(note)} characters, kept in this browser as you type: they
+                        survive a reload, and stay in this browser only.</p>
                     </section>
                 "settings" => <Settings/>
                 _ => <Missing {path}/>

@@ -6,7 +6,8 @@
 //
 // - A tab is a link: the address changes, Back and Forward work, and a reload or
 //   a shared link opens that tab, rendered on the server.
-// - What the App component holds (the note) is kept while you move between tabs.
+// - What the App component holds is kept while you move between tabs; the note
+//   is also kept in the browser, so it survives a reload.
 // - The Tasks tab loads its list from a server fn when you open it.
 //
 //   lib/tasks.qwe          the tasks, kept by the server, and the server fns that change them
