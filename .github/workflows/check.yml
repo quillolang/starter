@@ -30,24 +30,24 @@ jobs:
         shell: bash
         run: .quillo/bin/quillo check
 
-      # Through the script get-quillo wrote: run.sh, or run.cmd on Windows.
-      - name: Serve, with run.sh
-        if: runner.os != 'Windows'
-        run: ./run.sh --port 8080 --log off &
-      - name: Serve, with run.cmd
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: Start-Process -FilePath .\run.cmd -ArgumentList '--port', '8080', '--log', 'off' -NoNewWindow
-      - name: It answers
+      # Through the script get-quillo wrote: run.sh, or run.cmd on Windows. Served
+      # and asked in one step: on Windows, what a step starts ends with the step.
+      - name: Serve with run.sh (run.cmd on Windows), and ask it
         shell: bash
         run: |
+          if [ "$RUNNER_OS" = Windows ]; then
+            cmd //c run.cmd --port 8080 --log off &
+          else
+            ./run.sh --port 8080 --log off &
+          fi
           for i in $(seq 1 100); do curl -fs -o /dev/null http://127.0.0.1:8080/ && break; sleep 0.1; done
           curl -fsS -o /dev/null -w "GET / %{http_code}\n" http://127.0.0.1:8080/
-
-      # The starter's own page and route, which an app made from it changes.
-      - name: The starter's page
-        if: github.repository == 'quillolang/starter'
-        shell: bash
-        run: |
-          curl -fsS http://127.0.0.1:8080/ | grep -q 'data-c="Counter"'
-          test "$(curl -fsS http://127.0.0.1:8080/hello/Ana)" = "Hello, Ana!"
+          # The starter's own page and route, which an app made from it changes.
+          if [ "$GITHUB_REPOSITORY" = quillolang/starter ]; then
+            case "$(curl -fsS http://127.0.0.1:8080/)" in
+              *'data-c="Counter"'*) ;;
+              *) echo "GET / has no Counter island"; exit 1 ;;
+            esac
+            test "$(curl -fsS http://127.0.0.1:8080/hello/Ana)" = "Hello, Ana!"
+            echo "the starter's page and /hello/Ana: as written"
+          fi
