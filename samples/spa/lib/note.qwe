@@ -1,0 +1,16 @@
+// The note, in the database: one for the app, as the task list is, so every
+// visitor sees the same note.
+
+let note_limit = 20000
+
+server fn load_note() -> str with db {
+    let row = db.one("select text from note where id = 1")
+    row == null ? "" : row.text
+}
+
+// Keeps the note; one that is too long is refused rather than cut.
+server fn save_note(text: str) -> str ! str with db {
+    if len(text) > note_limit { return err("keep the note under 20,000 characters") }
+    db.exec("insert into note (id, text) values (1, ?) on conflict (id) do update set text = excluded.text", text)?
+    text
+}

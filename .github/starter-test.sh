@@ -61,13 +61,21 @@ spa)
     done
     is "a path that is no tab: 404" "$(code "$base/nope")" 404
     is "a tab's path, one deeper: 404" "$(code "$base/tasks/1")" 404
-    has "a task added" "$(rpc add_task '["Water the plants"]')" '"text":"Water the plants","done":false}]}'
+    has "a task added" "$(rpc add_task '["Water the plants"]')" '"text":"Water the plants","done":0}]}'
     is "an empty task: the reason" "$(rpc add_task '["   "]')" '{"err":"a task needs some text"}'
     rpc add_task '["<img src=x onerror=alert(1)>"]' >/dev/null
     tasks=$(get "$base/tasks")
     has "a task's markup is shown as text" "$tasks" "&lt;img src=x onerror=alert(1)&gt;"
     lacks "and never as markup" "$tasks" "<img src=x"
-    has "toggled" "$(rpc toggle_task '[1]')" '"id":1,"text":"Open the Notes tab, write something, come back","done":true}'
+    has "toggled" "$(rpc toggle_task '[1]')" '"id":1,"text":"Open the Notes tab, write something, reload","done":1}'
+    # The note, in the database: saved by a server fn, in the page the server makes.
+    has "a new database: the note is empty" "$(get "$base/notes")" 'aria-label="Note"></textarea>'
+    is "a note saved" "$(rpc save_note '["Kept in SQLite <b>as text</b>"]')" '{"ok":"Kept in SQLite <b>as text</b>"}'
+    has "the server puts it in the page" "$(get "$base/notes")" '>Kept in SQLite &lt;b&gt;as text&lt;/b&gt;</textarea>'
+    is "load_note gives it" "$(rpc load_note '[]')" '{"ok":"Kept in SQLite <b>as text</b>"}'
+    long=$(printf 'x%.0s' $(seq 1 20001))
+    is "a note over 20,000 characters: refused" "$(rpc save_note "[\"$long\"]")" '{"err":"keep the note under 20,000 characters"}'
+    is "and the note kept as it was" "$(rpc load_note '[]')" '{"ok":"Kept in SQLite <b>as text</b>"}'
     ;;
 ssr)
     lacks "no component: the pages need no JavaScript" "$page" "<quillo-island"

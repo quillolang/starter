@@ -1,26 +1,20 @@
-// The tasks: kept by the server while it runs (a restart starts afresh, and every
-// visitor sees the same list), and the server fns the Tasks tab calls.
+// The tasks, in the database, and the server fns the Tasks tab calls. They are the
+// app's: every visitor sees the same list.
 
-type Task = { id: int, text: str, done: bool }
+type Task = { id: int, text: str, done: int }
 
-let tasks = [
-    { id: 1, text: "Open the Notes tab, write something, come back", done: false },
-    { id: 2, text: "Switch the theme to Dark", done: false },
-]
-let next_id = 3
+server fn list_tasks() -> list<Task> with db =
+    db.query("select id, text, done from tasks order by id")
 
-server fn list_tasks() -> list<Task> = tasks
-
-server fn add_task(text: str) -> list<Task> ! str {
+server fn add_task(text: str) -> list<Task> ! str with db {
     let t = trim(text)
     if t == "" { return err("a task needs some text") }
     if len(t) > 200 { return err("keep it under 200 characters") }
-    tasks = tasks + [{ id: next_id, text: t, done: false }]
-    next_id = next_id + 1
-    tasks
+    db.exec("insert into tasks (text) values (?)", t)?
+    list_tasks()
 }
 
-server fn toggle_task(id: int) -> list<Task> {
-    tasks = tasks | map((t) => t.id == id ? set(t, "done", !t.done) : t)
-    tasks
+server fn toggle_task(id: int) -> list<Task> ! str with db {
+    db.exec("update tasks set done = 1 - done where id = ?", id)?
+    list_tasks()
 }

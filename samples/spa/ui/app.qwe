@@ -2,10 +2,7 @@
 // the address names. It runs in the browser once the page has loaded, so moving
 // between tabs changes only the tab, and what App holds stays.
 
-// Where the note is kept: this browser's localStorage, which every program served
-// from this address shares, hence a name of the starter's own.
-let note_key = "starter.spa.note"
-
+use lib/note.qwe
 use lib/tasks.qwe
 use ui/theme_switch.qwe
 
@@ -54,8 +51,11 @@ component TasksTab() {
             ? <p.muted>Loading…</p>
             : <ul.list.card>{for t in items =>
                 <li key={t.id}>
-                    <label class={t.done && "done"}>
-                        <input type="checkbox" checked={t.done} @change={() => { items = toggle_task(t.id) }}/>
+                    <label class={t.done == 1 && "done"}>
+                        <input type="checkbox" checked={t.done == 1} @change={() => {
+                            let r = toggle_task(t.id)
+                            if !is_err(r) { items = r }
+                        }}/>
                         {t.text}
                     </label>
                 </li>}</ul>}
@@ -76,17 +76,37 @@ view Missing(path: str) =
         <p>No tab is at <code>{path}</code>. <a href="/">Go home</a>.</p>
     </section>
 
-component App(theme: str) {
-    state note = ""
+// saved_note: the note as the database has it when the page is made.
+component App(theme: str, saved_note: str) {
+    state note = saved_note
+    state saved = saved_note        // what the database has
+    state saving = false            // a save is on its way
+    state failed = null             // the text the last save could not keep
+    state note_problem = null       // and why
     let path = url().path
     let tab = tab_of(path)
-    // The note comes back from this browser once the page runs: it survives a
-    // reload and a restart of the server. A browser that keeps nothing (storage
-    // turned off) gives an error, and the note starts empty.
-    <div.app @mount={(_el) => {
-        let saved = js("localStorage.getItem", note_key)
-        if !is_err(saved) && saved != null { note = saved }
-    }}>
+    // Half a second after the typing stops, the note goes to the database. This
+    // statement reads `note`, so each key starts the wait again; it is App's, so
+    // moving to another tab meanwhile does not stop it. One save at a time, each
+    // with the newest text, so a slow answer cannot put an older text back. A
+    // save that fails is not tried again until the note changes.
+    if note != saved && note != failed && !saving {
+        every(500, () => {
+            let text = note
+            saving = true
+            let r = save_note(text)
+            if is_err(r) {
+                failed = text
+                note_problem = r.error
+            } else {
+                saved = text
+                failed = null
+                note_problem = null
+            }
+            saving = false
+        })
+    }
+    <div.app>
         <header.bar>
             <b>spa</b>
             <ThemeSwitch start={theme}/>
@@ -104,13 +124,10 @@ component App(theme: str) {
                 "notes" =>
                     <section>
                         <h2>Notes</h2>
-                        <textarea.note value={note} placeholder="Write here, reload, come back tomorrow" aria-label="Note"
-                            @input={(e) => {
-                                note = e.value
-                                js("localStorage.setItem", note_key, e.value)
-                            }}></textarea>
-                        <p class="muted">{len(note)} characters, kept in this browser as you type: they
-                        survive a reload, and stay in this browser only.</p>
+                        <textarea.note bind:value={note} maxlength="20000" placeholder="Write here, reload, come back tomorrow" aria-label="Note"></textarea>
+                        <p class="muted">{len(note)} characters · {note_problem != null ? `Not saved: ${note_problem}` : note == saved ? "Saved" : "Saving…"}. Kept in
+                        the app's database (SQLite) half a second after you stop typing, so a reload or
+                        a restart keeps it; every visitor sees the same note, as with the tasks.</p>
                     </section>
                 "settings" => <Settings/>
                 _ => <Missing {path}/>

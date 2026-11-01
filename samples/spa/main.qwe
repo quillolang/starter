@@ -6,22 +6,29 @@
 //
 // - A tab is a link: the address changes, Back and Forward work, and a reload or
 //   a shared link opens that tab, rendered on the server.
-// - What the App component holds is kept while you move between tabs; the note
-//   is also kept in the browser, so it survives a reload.
+// - What the App component holds is kept while you move between tabs.
+// - The note and the tasks are in SQLite, in app.db, made by migrations/ on the
+//   first start: a reload or a restart keeps them.
 // - The Tasks tab loads its list from a server fn when you open it.
 //
-//   lib/tasks.qwe          the tasks, kept by the server, and the server fns that change them
+//   lib/note.qwe           the note, and the server fns that read and keep it
+//   lib/tasks.qwe          the tasks, and the server fns that change them
 //   ui/app.qwe             the App component: the tab bar and each tab
 //   ui/page.qwe            the document around it, in Quillo UI's theme
 //   ui/theme.qwe           Quillo UI's theme: colours, type and shapes, light and dark
 //   ui/theme_switch.qwe    System, Light or Dark, kept in a cookie
+//   migrations/            the database's tables, made once each, in order
 
+db.open("app.db")
+db.migrate("migrations")
+
+use lib/note.qwe
 use ui/page.qwe
 use ui/app.qwe
 use ui/theme_switch.qwe
 
 // Every path renders the app; the server answers 404 for one that is no tab.
 route GET /*rest {
-    let page = <Page title="spa"><App theme={theme_now()}/></Page>
+    let page = <Page title="spa"><App theme={theme_now()} saved_note={load_note()}/></Page>
     tab_of(request.path) == "missing" ? respond(404, page) : page
 }
