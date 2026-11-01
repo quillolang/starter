@@ -4,5 +4,8 @@
 *.db-shm
 # Settings and secrets: keep them out of version control
 .env
-# Quillo's own: get-quillo.sh's binary, and quillo build's libraries
+# Quillo's own: get-quillo's binary, and quillo build's libraries
 .quillo/
+# What get-quillo writes beside itself, to run main.qwe with that binary
+run.sh
+run.cmd

@@ -20,20 +20,23 @@ quillo run --watch          # http://127.0.0.1:8080
 ```
 
 If not, `get-quillo.sh` puts the release this program is written for in `.quillo/bin/`,
-the build for your machine, checked against its SHA-256:
+the build for your machine, checked against its SHA-256. It also writes `run.sh`, which
+runs `main.qwe` with that quillo, and takes `quillo run`'s options:
 
 ```sh
 sh get-quillo.sh            # macOS, and Linux with glibc 2.34 or later
-.quillo/bin/quillo run --watch
+./run.sh --watch
 ```
 
-On Windows, in PowerShell:
+On Windows, in PowerShell, `get-quillo.ps1` does the same, and writes `run.cmd`:
 
 ```powershell
 Remove-Item -Recurse -Force .git; git init
 powershell -ExecutionPolicy Bypass -File get-quillo.ps1
-.quillo\bin\quillo.exe run --watch
+.\run.cmd --watch
 ```
+
+Both are left out of git, as the binary is: a fresh clone runs `get-quillo` once.
 
 Edit any file while it runs: `--watch` reloads the program and the page on save.
 
@@ -43,8 +46,8 @@ Edit any file while it runs: `--watch` reloads the program and the page on save.
 main.qwe                     the program: the files it uses and its routes
 lib/greet.qwe                a function, for the server and the browser
 ui/page.qwe                  the frame every page uses, and a component
-get-quillo.sh                the quillo release for this machine, into .quillo/bin/
-get-quillo.ps1               the same, on Windows
+get-quillo.sh                the quillo release for this machine, into .quillo/bin/, and run.sh
+get-quillo.ps1               the same, on Windows, and run.cmd
 .github/workflows/check.yml  checks and serves the program on Linux, macOS and Windows
 ```
 
@@ -55,5 +58,7 @@ may use what only the next release has.
 
 - The [user guide](https://github.com/quillolang/quillo/blob/main/USERGUIDE.md): the
   language, components, routes, databases and the standard library.
-- [quillolang/examples](https://github.com/quillolang/examples): a to-do app with a
-  database, live data, a single-page app, and more.
+- [quillolang/examples](https://github.com/quillolang/examples): small programs, a file
+  each: a to-do list, live notes, a single-page app, a virtual list of a million rows, and more.
+- A to-do app laid out across folders, with a database, migrations, CSS and JavaScript:
+  [`app/`](https://github.com/quillolang/quillo/tree/v0.6.0/app) in Quillo's own repository.

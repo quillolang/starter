@@ -2,7 +2,10 @@
 # Puts the quillo this program is written for in .quillo/bin/, the release's
 # build for this machine, checked against the SHA-256 published beside it.
 #
-#   sh get-quillo.sh            then  .quillo/bin/quillo run --watch
+#   sh get-quillo.sh            then  ./run.sh --watch
+#
+# It also writes run.sh, which runs this folder's main.qwe with that quillo,
+# unless there is a run.sh already.
 #
 # QUILLO_VERSION=v0.7.0 takes another release; QUILLO_RELEASES another place
 # to download from (a mirror, or a folder as file:///...).
@@ -52,8 +55,27 @@ if [ -z "$target" ]; then
     exit 1
 fi
 
+# run.sh, beside this script. One that is there already, perhaps edited, is kept.
+write_run() {
+    [ -e "$here/run.sh" ] && return 0
+    cat > "$here/run.sh" <<'EOF'
+#!/bin/sh
+# Runs this folder's main.qwe with the quillo in .quillo/bin/, which
+# get-quillo.sh put there, and puts there first when it is not:
+#
+#   ./run.sh --watch            the options are quillo run's: --port 8081, --reload
+set -eu
+here=$(cd "$(dirname "$0")" && pwd)
+if [ ! -x "$here/.quillo/bin/quillo" ]; then sh "$here/get-quillo.sh"; fi
+exec "$here/.quillo/bin/quillo" run "$here/main.qwe" "$@"
+EOF
+    chmod +x "$here/run.sh"
+    echo "get-quillo: wrote run.sh; start the program with ./run.sh --watch"
+}
+
 if [ -x "$bin/quillo" ] && "$bin/quillo" version 2>/dev/null | grep -q "^quillo ${version#v} "; then
     echo "get-quillo: $("$bin/quillo" version) is already in .quillo/bin"
+    write_run
     exit 0
 fi
 
@@ -78,3 +100,4 @@ mv "$tmp/$name/quillo" "$bin/quillo.new"
 chmod +x "$bin/quillo.new"
 mv -f "$bin/quillo.new" "$bin/quillo"
 echo "get-quillo: $("$bin/quillo" version), in .quillo/bin"
+write_run
