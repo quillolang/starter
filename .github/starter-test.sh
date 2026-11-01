@@ -7,6 +7,9 @@
 # The workflow runs it in quillolang/starter only. An app made from the starter
 # changes the pages it checks, and can delete this file.
 set -uo pipefail
+# Git Bash on Windows rewrites arguments that look like paths before curl sees
+# them: back=/notes/2 into a Windows path, //evil.example into /evil.example.
+export MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*'
 sample=$1
 base=${BASE:-http://127.0.0.1:8080}
 failed=0
