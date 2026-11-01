@@ -28,7 +28,9 @@ view Home() =
     </section>
 
 component TasksTab() {
-    state items = list_tasks()
+    // Live: list_tasks runs again whenever the tasks table changes, here or on any
+    // other open page, so adding or ticking a task shows everywhere at once.
+    state items = live(list_tasks)
     state draft = ""
     state problem = null
     <section>
@@ -38,7 +40,6 @@ component TasksTab() {
             if is_err(r) {
                 problem = r.error
             } else {
-                items = r
                 draft = ""
                 problem = null
             }
@@ -54,7 +55,7 @@ component TasksTab() {
                     <label class={t.done == 1 && "done"}>
                         <input type="checkbox" checked={t.done == 1} @change={() => {
                             let r = toggle_task(t.id)
-                            if !is_err(r) { items = r }
+                            if is_err(r) { problem = r.error }
                         }}/>
                         {t.text}
                     </label>
@@ -76,10 +77,15 @@ view Missing(path: str) =
         <p>No tab is at <code>{path}</code>. <a href="/">Go home</a>.</p>
     </section>
 
-// saved_note: the note as the database has it when the page is made.
-component App(theme: str, saved_note: str) {
-    state note = saved_note
-    state saved = saved_note        // what the database has
+// The note's text, from what load_note gave: "" until it comes, or if it failed.
+fn text_of(loaded) -> str = is_err(loaded) || loaded == null ? "" : loaded
+
+component App(theme: str) {
+    // Live: the note as the database has it, followed, so a note saved on another
+    // page comes here too.
+    state remote = live(load_note)
+    state note = text_of(remote)
+    state saved = text_of(remote)   // what the database has
     state saving = false            // a save is on its way
     state failed = null             // the text the last save could not keep
     state note_problem = null       // and why
@@ -105,6 +111,13 @@ component App(theme: str, saved_note: str) {
             }
             saving = false
         })
+    }
+    // Another page saved the note: take it, unless this page has typing of its own
+    // not yet saved, which then goes to the database and on to the other pages.
+    // This page's own saves come back as what it has, and change nothing.
+    if !is_err(remote) && remote != null && remote != saved && note == saved && !saving {
+        note = remote
+        saved = remote
     }
     <div.app>
         <header.bar>

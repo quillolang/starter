@@ -7,7 +7,7 @@ becomes your program:
 | Sample | What it is |
 |---|---|
 | `hello` | a page, a component that runs in the browser, and a function both sides use |
-| `spa` | a single-page app: tabs that change without reloading the page, what the app holds kept between them, a note and a task list kept in SQLite through server fns, so a reload or a restart keeps them, a 404 for a path that is no tab |
+| `spa` | a single-page app: tabs that change without reloading the page, what the app holds kept between them, a note and a task list kept in SQLite through server fns, so a reload or a restart keeps them, and live, so a change on one page shows on every other open page, a 404 for a path that is no tab |
 | `ssr` | pages made on the server: a list of notes in SQLite, a page for each, forms that redirect after posting and show what was wrong; no component, so it works with JavaScript off |
 
 Each has a theme switch, System, Light or Dark. The choice is kept in a cookie, so the

@@ -9,7 +9,8 @@
 // - What the App component holds is kept while you move between tabs.
 // - The note and the tasks are in SQLite, in app.db, made by migrations/ on the
 //   first start: a reload or a restart keeps them.
-// - The Tasks tab loads its list from a server fn when you open it.
+// - The note and the tasks are live: a change saved on one page shows on every
+//   other open page, without a reload.
 //
 //   lib/note.qwe           the note, and the server fns that read and keep it
 //   lib/tasks.qwe          the tasks, and the server fns that change them
@@ -22,13 +23,12 @@
 db.open("app.db")
 db.migrate("migrations")
 
-use lib/note.qwe
 use ui/page.qwe
 use ui/app.qwe
 use ui/theme_switch.qwe
 
 // Every path renders the app; the server answers 404 for one that is no tab.
 route GET /*rest {
-    let page = <Page title="spa"><App theme={theme_now()} saved_note={load_note()}/></Page>
+    let page = <Page title="spa"><App theme={theme_now()}/></Page>
     tab_of(request.path) == "missing" ? respond(404, page) : page
 }
