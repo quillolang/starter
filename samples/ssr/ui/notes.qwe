@@ -1,0 +1,38 @@
+// The notes' pages, all made on the server: the list, the form and a note.
+
+use lib/notes.qwe
+
+view NoteList(notes: list<Note>) =
+    <section>
+        <h2>Notes</h2>
+        {len(notes) == 0
+            ? <p.muted>No notes yet: write the first one below.</p>
+            : <ul.list.card>{for n in notes =>
+                <li><a href={`/notes/${n.id}`}>{n.title}</a> <span.muted>{n.created_at} UTC</span></li>}</ul>}
+    </section>
+
+view NoteForm(title: str = "", body: str = "", problem: str? = null) =
+    <form.card.form method="post" action="/notes">
+        <h2>New note</h2>
+        {problem != null && <p.problem role="alert">{problem}</p>}
+        <label>Title <input name="title" value={title} maxlength="120" required/></label>
+        <label>Note <textarea name="body" rows="5" maxlength="5000">{body}</textarea></label>
+        <button.primary>Save</button>
+    </form>
+
+view NotePage(note: Note) =
+    <article.card>
+        <h2>{note.title}</h2>
+        <p.muted>{note.created_at} UTC</p>
+        <p.body>{note.body}</p>
+        <form method="post" action={`/notes/${note.id}/delete`}>
+            <button.danger>Delete<span.ui-sr> {note.title}</span></button>
+        </form>
+        <p><a href="/">← All notes</a></p>
+    </article>
+
+view Missing() =
+    <section>
+        <h2>Not found</h2>
+        <p>There is no such note. <a href="/">All notes</a>.</p>
+    </section>

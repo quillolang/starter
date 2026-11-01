@@ -1,0 +1,43 @@
+// The frame every page uses, in Quillo UI's theme, and a component that runs in
+// the browser.
+
+use ui/theme.qwe
+use ui/theme_switch.qwe
+
+let page_css = css`
+.app { max-width: 40rem; margin: 0 auto; padding: 0 1.25rem 3rem; }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid var(--ui-border); }
+.bar b { font-size: 1.05rem; }
+main { margin-top: 2.5rem; }
+h1 { margin: 0 0 1rem; font-size: 2rem; letter-spacing: -.02em; }
+.counter { height: 2.5rem; padding: 0 1.1rem; border: 0; border-radius: var(--ui-radius); background: var(--ui-accent); color: var(--ui-accent-fg); font: 600 15px/1 var(--ui-font); cursor: pointer; }
+.counter:focus-visible { outline: none; box-shadow: var(--ui-focus); }
+.theme-switch { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--ui-border); border-radius: 999px; background: var(--ui-subtle); }
+.theme-switch button { height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--ui-muted); font: 500 13px/1 var(--ui-font); cursor: pointer; }
+.theme-switch button[aria-pressed="true"] { background: var(--ui-surface); color: var(--ui-fg); box-shadow: var(--ui-shadow); }
+.theme-switch button:focus-visible { outline: none; box-shadow: var(--ui-focus); }
+`
+
+view Page(title: str, children) =
+    <html lang="en" class={theme_class(theme_now())}>
+        <head>
+            <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            <title>{title}</title>
+            <style>{theme_css + page_css}</style>
+        </head>
+        <body.ui-root>
+            <div.app>
+                <header.bar>
+                    <b>hello</b>
+                    <ThemeSwitch start={theme_now()}/>
+                </header>
+                <main>{children}</main>
+            </div>
+        </body>
+    </html>
+
+component Counter(start: int) {
+    state count = start
+    <button.counter @click={() => { count += 1 }}>Clicked {count} times</button>
+}

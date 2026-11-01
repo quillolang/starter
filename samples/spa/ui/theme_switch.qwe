@@ -1,0 +1,49 @@
+// The theme switch: System, Light or Dark. The choice is kept in a cookie, so the
+// server renders every page in it, with no flash of the other theme, and the
+// switch changes the page at once, without reloading it.
+//
+//   <html class={theme_class(theme_now())}> ... <ThemeSwitch start={theme_now()}/>
+//
+// The colours are Quillo UI's theme (ui/theme.qwe): it follows the system's light
+// or dark setting, unless `ui-light` or `ui-dark` is on <html>.
+
+use ui/theme.qwe
+
+// The visitor's choice, on the server: "system" when none is kept.
+fn theme_now() -> str {
+    let t = cookie("theme")
+    t == "light" || t == "dark" ? t : "system"
+}
+
+// The class <html> takes for a choice: none for "system".
+fn theme_class(theme: str) -> str? = match theme {
+    "light" => "ui-light"
+    "dark" => "ui-dark"
+    _ => null
+}
+
+// Keeps the choice for a year. Not `Secure`, so it holds on plain HTTP too, as
+// from a phone on the same network: a theme is no secret. "system" is kept as
+// a value rather than by deleting the cookie: delete_cookie is always `Secure`,
+// which a browser refuses over plain HTTP, so the old choice would stay.
+server fn save_theme(theme: str) -> str {
+    let t = theme == "light" || theme == "dark" ? theme : "system"
+    set_cookie("theme", t, { max_age: "365d", secure: false })
+    t
+}
+
+component ThemeSwitch(start: str = "system") {
+    state theme = start
+    let choose = (t) => {
+        theme = t
+        let root = js("document.documentElement")
+        root.classList.remove("ui-light")
+        root.classList.remove("ui-dark")
+        if t != "system" { root.classList.add(`ui-${t}`) }
+        save_theme(t)
+    }
+    <div.theme-switch role="group" aria-label="Theme">
+        {for [t, name] in [["system", "System"], ["light", "Light"], ["dark", "Dark"]] =>
+            <button type="button" key={t} aria-pressed={theme == t ? "true" : "false"} @click={() => choose(t)}>{name}</button>}
+    </div>
+}

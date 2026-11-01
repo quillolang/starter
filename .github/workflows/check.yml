@@ -1,6 +1,6 @@
 # Checks the program and serves it, on Linux, macOS and Windows, with the quillo
-# release get-quillo.sh names. Kept when you start from this repository: it
-# checks your program the same way.
+# release get-quillo names. Kept when you start from this repository: it checks
+# your program the same way.
 name: Check
 
 on:
@@ -14,17 +14,21 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        # In quillolang/starter, each sample, made the program by get-quillo as a
+        # person would. In an app made from it, the app's own main.qwe.
+        sample: ${{ github.repository == 'quillolang/starter' && fromJSON('["hello", "spa", "ssr"]') || fromJSON('[""]') }}
     runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} ${{ matrix.sample }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Quillo, the release this program is written for
         if: runner.os != 'Windows'
-        run: sh get-quillo.sh
+        run: sh get-quillo.sh ${{ matrix.sample }}
       - name: Quillo, the release this program is written for (Windows PowerShell)
         if: runner.os == 'Windows'
         shell: powershell
-        run: .\get-quillo.ps1
+        run: .\get-quillo.ps1 ${{ matrix.sample }}
 
       - name: Check
         shell: bash
@@ -42,12 +46,6 @@ jobs:
           fi
           for i in $(seq 1 100); do curl -fs -o /dev/null http://127.0.0.1:8080/ && break; sleep 0.1; done
           curl -fsS -o /dev/null -w "GET / %{http_code}\n" http://127.0.0.1:8080/
-          # The starter's own page and route, which an app made from it changes.
-          if [ "$GITHUB_REPOSITORY" = quillolang/starter ]; then
-            case "$(curl -fsS http://127.0.0.1:8080/)" in
-              *'data-c="Counter"'*) ;;
-              *) echo "GET / has no Counter island"; exit 1 ;;
-            esac
-            test "$(curl -fsS http://127.0.0.1:8080/hello/Ana)" = "Hello, Ana!"
-            echo "the starter's page and /hello/Ana: as written"
+          if [ -n "${{ matrix.sample }}" ]; then
+            bash .github/starter-test.sh "${{ matrix.sample }}"
           fi

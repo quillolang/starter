@@ -1,0 +1,26 @@
+// A single-page app: tabs that change without reloading the page. This file is
+// the program: the files it uses and its routes.
+//
+//   ./run.sh --watch        then open http://127.0.0.1:8080 (get-quillo wrote run.sh)
+//   quillo check            checks every file it uses, without running
+//
+// - A tab is a link: the address changes, Back and Forward work, and a reload or
+//   a shared link opens that tab, rendered on the server.
+// - What the App component holds (the note) is kept while you move between tabs.
+// - The Tasks tab loads its list from a server fn when you open it.
+//
+//   lib/tasks.qwe          the tasks, kept by the server, and the server fns that change them
+//   ui/app.qwe             the App component: the tab bar and each tab
+//   ui/page.qwe            the document around it, in Quillo UI's theme
+//   ui/theme.qwe           Quillo UI's theme: colours, type and shapes, light and dark
+//   ui/theme_switch.qwe    System, Light or Dark, kept in a cookie
+
+use ui/page.qwe
+use ui/app.qwe
+use ui/theme_switch.qwe
+
+// Every path renders the app; the server answers 404 for one that is no tab.
+route GET /*rest {
+    let page = <Page title="spa"><App theme={theme_now()}/></Page>
+    tab_of(request.path) == "missing" ? respond(404, page) : page
+}

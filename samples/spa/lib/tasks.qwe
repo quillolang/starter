@@ -1,0 +1,26 @@
+// The tasks: kept by the server while it runs (a restart starts afresh, and every
+// visitor sees the same list), and the server fns the Tasks tab calls.
+
+type Task = { id: int, text: str, done: bool }
+
+let tasks = [
+    { id: 1, text: "Open the Notes tab, write something, come back", done: false },
+    { id: 2, text: "Switch the theme to Dark", done: false },
+]
+let next_id = 3
+
+server fn list_tasks() -> list<Task> = tasks
+
+server fn add_task(text: str) -> list<Task> ! str {
+    let t = trim(text)
+    if t == "" { return err("a task needs some text") }
+    if len(t) > 200 { return err("keep it under 200 characters") }
+    tasks = tasks + [{ id: next_id, text: t, done: false }]
+    next_id = next_id + 1
+    tasks
+}
+
+server fn toggle_task(id: int) -> list<Task> {
+    tasks = tasks | map((t) => t.id == id ? set(t, "done", !t.done) : t)
+    tasks
+}

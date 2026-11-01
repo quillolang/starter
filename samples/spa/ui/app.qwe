@@ -1,0 +1,106 @@
+// The App component owns the page: the tab bar, the theme switch and the tab
+// the address names. It runs in the browser once the page has loaded, so moving
+// between tabs changes only the tab, and what App holds stays.
+
+use lib/tasks.qwe
+use ui/theme_switch.qwe
+
+// The tab for a path, as the server's routes would match it.
+fn tab_of(path: str) -> str = match split(path, "/") | filter((s) => s != "") {
+    [] => "home"
+    ["tasks"] => "tasks"
+    ["notes"] => "notes"
+    ["settings"] => "settings"
+    _ => "missing"
+}
+
+view Tab(href: str, here: bool, children) =
+    <a {href} aria-current={here ? "page" : null}>{children}</a>
+
+view Home() =
+    <section>
+        <h2>Home</h2>
+        <p>A single-page app in Quillo. Each tab above is a link: the address changes and
+        the page does not reload, so what the app holds stays. Back and Forward work, and a
+        reload opens the same tab, made on the server.</p>
+        <p class="muted">Try <a href="/tasks">Tasks</a>, then <a href="/notes">Notes</a>.</p>
+    </section>
+
+component TasksTab() {
+    state items = list_tasks()
+    state draft = ""
+    state problem = null
+    <section>
+        <h2>Tasks</h2>
+        <form.add @submit={() => {
+            let r = add_task(draft)
+            if is_err(r) {
+                problem = r.error
+            } else {
+                items = r
+                draft = ""
+                problem = null
+            }
+        }}>
+            <input bind:value={draft} placeholder="Something to do" aria-label="New task"/>
+            <button>Add</button>
+        </form>
+        {problem && <p.problem>{problem}</p>}
+        {items == null
+            ? <p.muted>Loading…</p>
+            : <ul.list.card>{for t in items =>
+                <li key={t.id}>
+                    <label class={t.done && "done"}>
+                        <input type="checkbox" checked={t.done} @change={() => { items = toggle_task(t.id) }}/>
+                        {t.text}
+                    </label>
+                </li>}</ul>}
+    </section>
+}
+
+view Settings() =
+    <section>
+        <h2>Settings</h2>
+        <p>The theme is Quillo UI's. The switch in the bar changes it at once, without
+        reloading the page, and keeps it in a cookie, so the server renders the next page
+        in it too. System follows the light or dark setting of your computer.</p>
+    </section>
+
+view Missing(path: str) =
+    <section>
+        <h2>Not found</h2>
+        <p>No tab is at <code>{path}</code>. <a href="/">Go home</a>.</p>
+    </section>
+
+component App(theme: str) {
+    state note = ""
+    let path = url().path
+    let tab = tab_of(path)
+    <div.app>
+        <header.bar>
+            <b>spa</b>
+            <ThemeSwitch start={theme}/>
+        </header>
+        <nav.tabs aria-label="Tabs">
+            <Tab href="/" here={tab == "home"}>Home</Tab>
+            <Tab href="/tasks" here={tab == "tasks"}>Tasks</Tab>
+            <Tab href="/notes" here={tab == "notes"}>Notes</Tab>
+            <Tab href="/settings" here={tab == "settings"}>Settings</Tab>
+        </nav>
+        <main>
+            {match tab {
+                "home" => <Home/>
+                "tasks" => <TasksTab/>
+                "notes" =>
+                    <section>
+                        <h2>Notes</h2>
+                        <textarea.note bind:value={note} placeholder="Write here, open another tab, come back" aria-label="Note"></textarea>
+                        <p class="muted">{len(note)} characters. The App component holds them, so they stay
+                        while you move between tabs; a reload starts afresh.</p>
+                    </section>
+                "settings" => <Settings/>
+                _ => <Missing {path}/>
+            }}
+        </main>
+    </div>
+}

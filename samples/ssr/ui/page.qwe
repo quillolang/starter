@@ -1,0 +1,51 @@
+// The frame every page uses, in Quillo UI's theme.
+
+use ui/theme.qwe
+use ui/theme_switch.qwe
+
+let page_css = css`
+.app { max-width: 44rem; margin: 0 auto; padding: 0 1.25rem 3rem; }
+.bar { display: flex; align-items: center; gap: 1rem; padding: .75rem 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--ui-border); }
+.home { margin-right: auto; color: var(--ui-fg); font-weight: 700; font-size: 1.05rem; text-decoration: none; }
+a { color: var(--ui-accent); }
+h2 { margin: 0 0 .75rem; font-size: 1.4rem; letter-spacing: -.01em; }
+.muted { color: var(--ui-muted); font-size: .9em; }
+.problem { margin: 0 0 .75rem; color: var(--ui-danger); }
+.card { margin: 0 0 1.5rem; padding: 1rem 1.25rem; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); background: var(--ui-surface); box-shadow: var(--ui-shadow); }
+.list { padding: .25rem 1.25rem; list-style: none; }
+.list li { padding: .55rem 0; border-top: 1px solid var(--ui-border); }
+.list li:first-child { border-top: 0; }
+.form { display: grid; gap: .75rem; }
+.form label { display: grid; gap: .3rem; font-weight: 500; }
+.form input, .form textarea { padding: .55rem .75rem; border: 1px solid var(--ui-border); border-radius: var(--ui-radius-sm); background: var(--ui-bg); color: var(--ui-fg); font: inherit; font-weight: 400; }
+.form input:focus-visible, .form textarea:focus-visible { outline: none; border-color: var(--ui-accent); box-shadow: var(--ui-focus); }
+.body { white-space: pre-wrap; }
+.primary, .danger { justify-self: start; height: 2.4rem; padding: 0 1.1rem; border: 0; border-radius: var(--ui-radius-sm); font: 600 14px/1 var(--ui-font); cursor: pointer; }
+.primary { background: var(--ui-accent); color: var(--ui-accent-fg); }
+.danger { background: var(--ui-danger-soft); color: var(--ui-danger); }
+.primary:focus-visible, .danger:focus-visible { outline: none; box-shadow: var(--ui-focus); }
+.theme-switch { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--ui-border); border-radius: 999px; background: var(--ui-subtle); }
+.theme-switch button { height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--ui-muted); font: 500 13px/1 var(--ui-font); cursor: pointer; }
+.theme-switch button[aria-pressed="true"] { background: var(--ui-surface); color: var(--ui-fg); box-shadow: var(--ui-shadow); }
+.theme-switch button:focus-visible { outline: none; box-shadow: var(--ui-focus); }
+`
+
+// back: the path the theme switch returns to.
+view Page(title: str, back: str, children) =
+    <html lang="en" class={theme_class(theme_now())}>
+        <head>
+            <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            <title>{title}</title>
+            <style>{theme_css + page_css}</style>
+        </head>
+        <body.ui-root>
+            <div.app>
+                <header.bar>
+                    <a.home href="/">ssr</a>
+                    <ThemeSwitch {back}/>
+                </header>
+                <main>{children}</main>
+            </div>
+        </body>
+    </html>

@@ -1,7 +1,12 @@
-# Puts the quillo this program is written for in .quillo\bin\, the release's
-# build for Windows, checked against the SHA-256 published beside it.
+# Starts this folder's program from a sample app, when it has no main.qwe yet,
+# and puts the quillo it is written for in .quillo\bin\: the release's build for
+# Windows, checked against the SHA-256 published beside it.
 #
-#   powershell -ExecutionPolicy Bypass -File get-quillo.ps1   then  .\run.cmd --watch
+#   powershell -ExecutionPolicy Bypass -File get-quillo.ps1       asks which sample; then  .\run.cmd --watch
+#   powershell -ExecutionPolicy Bypass -File get-quillo.ps1 spa   that sample: hello, spa or ssr (see samples\)
+#
+# The sample's files are copied here, and samples\ is removed. Once main.qwe is
+# here, the folder's program is kept as it is: only quillo is fetched.
 #
 # It also writes run.cmd, which runs this folder's main.qwe with that quillo,
 # unless there is a run.cmd already. (A .cmd, not a .ps1: it runs in cmd and in
@@ -38,6 +43,55 @@ function Write-Run {
     # CRLF: cmd looks for a goto's label line by line, and LF alone can make it miss.
     [IO.File]::WriteAllText($run, ($lines -join "`r`n") + "`r`n")
     Write-Host "get-quillo: wrote run.cmd; start the program with .\run.cmd --watch"
+}
+
+# The samples, in the order they are offered.
+$samples = [ordered]@{
+    hello = "a page, a component and a function both sides use"
+    spa = "a single-page app: tabs that change without reloading, what it holds kept between them"
+    ssr = "pages made on the server: a list, forms and SQLite, working with JavaScript off"
+}
+$sample = if ($args.Count -ge 1) { "$($args[0])".ToLower() } else { "" }
+if ($args.Count -gt 1 -or ($sample -and -not $samples.Contains($sample))) {
+    Write-Host "get-quillo: which sample? get-quillo.ps1, or one of: $($samples.Keys -join ' ')"
+    exit 2
+}
+$from = Join-Path $PSScriptRoot "samples"
+if (Test-Path (Join-Path $PSScriptRoot "main.qwe")) {
+    if ($sample) {
+        Write-Host "get-quillo: this folder has a main.qwe, so it starts from no sample; only quillo is fetched for it"
+        exit 1
+    }
+} elseif (-not (Test-Path $from)) {
+    Write-Host "get-quillo: there is no main.qwe here and no samples\ to start one from"
+    exit 1
+} else {
+    if (-not $sample -and -not [Console]::IsInputRedirected) {
+        Write-Host "Which sample app should this folder start from?"
+        $keys = @($samples.Keys)
+        for ($i = 0; $i -lt $keys.Count; $i++) { Write-Host ("  {0}  {1,-6} {2}" -f ($i + 1), $keys[$i], $samples[$keys[$i]]) }
+        $answer = "$(Read-Host 'Number or name [1]')".Trim().ToLower()
+        if ($answer -match '^[0-9]+$' -and [int]$answer -ge 1 -and [int]$answer -le $keys.Count) { $answer = $keys[[int]$answer - 1] }
+        $sample = if ($answer) { $answer } else { "hello" }
+        if (-not $samples.Contains($sample)) {
+            Write-Host "get-quillo: no sample `"$sample`": one of $($keys -join ' ')"
+            exit 2
+        }
+    } elseif (-not $sample) {
+        $sample = "hello"
+        Write-Host "get-quillo: no terminal to ask, so the hello sample (get-quillo.ps1 spa takes another)"
+    }
+    # Nothing here is overwritten: a file the sample has, already here, stops it.
+    $src = Join-Path $from $sample
+    foreach ($f in Get-ChildItem $src -Force) {
+        if (Test-Path (Join-Path $PSScriptRoot $f.Name)) {
+            Write-Host "get-quillo: $($f.Name) is here already; move it away to start from the $sample sample"
+            exit 1
+        }
+    }
+    Copy-Item -Recurse (Join-Path $src "*") $PSScriptRoot
+    Remove-Item -Recurse -Force $from
+    Write-Host "get-quillo: this folder's program is the $sample sample now; samples\ is removed"
 }
 
 # There is an x86-64 build only; Windows 11 on ARM runs it under emulation.

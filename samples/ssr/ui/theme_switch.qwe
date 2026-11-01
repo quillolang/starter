@@ -1,0 +1,46 @@
+// The theme switch: System, Light or Dark, as a form, so it works with JavaScript
+// off. It posts to /theme, which keeps the choice in a cookie and sends the
+// visitor back where they were; the server renders every page in it.
+//
+//   <html class={theme_class(theme_now())}> ... <ThemeSwitch back="/notes/3"/>
+//
+// The colours are Quillo UI's theme (ui/theme.qwe): it follows the system's light
+// or dark setting, unless `ui-light` or `ui-dark` is on <html>.
+
+use ui/theme.qwe
+
+// The visitor's choice: "system" when none is kept.
+fn theme_now() -> str {
+    let t = cookie("theme")
+    t == "light" || t == "dark" ? t : "system"
+}
+
+// The class <html> takes for a choice: none for "system".
+fn theme_class(theme: str) -> str? = match theme {
+    "light" => "ui-light"
+    "dark" => "ui-dark"
+    _ => null
+}
+
+// Keeps the choice for a year. Not `Secure`, so it holds on plain HTTP too, as
+// from a phone on the same network: a theme is no secret. "system" is kept as
+// a value rather than by deleting the cookie: delete_cookie is always `Secure`,
+// which a browser refuses over plain HTTP, so the old choice would stay.
+fn set_theme(theme: str) {
+    let t = theme == "light" || theme == "dark" ? theme : "system"
+    set_cookie("theme", t, { max_age: "365d", secure: false })
+}
+
+// Where to send the visitor after the switch: a path on this site. Never an
+// address the form was given for another site: `//evil.example` and
+// `https://evil.example` are, and so is `/\evil.example`, which browsers read
+// as `//evil.example`.
+fn safe_back(back: str) -> str =
+    starts_with(back, "/") && !starts_with(back, "//") && !contains(back, "\\") ? back : "/"
+
+view ThemeSwitch(back: str) =
+    <form.theme-switch method="post" action="/theme" aria-label="Theme">
+        <input type="hidden" name="back" value={back}/>
+        {for [t, name] in [["system", "System"], ["light", "Light"], ["dark", "Dark"]] =>
+            <button name="theme" value={t} aria-pressed={theme_now() == t ? "true" : "false"}>{name}</button>}
+    </form>

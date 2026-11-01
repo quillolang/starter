@@ -1,0 +1,55 @@
+// Pages made on the server: a list, a page for each note, and forms. No component
+// runs in the browser, so the pages work with JavaScript off. This file is the
+// program: its database, the files it uses and its routes.
+//
+//   ./run.sh --watch        then open http://127.0.0.1:8080 (get-quillo wrote run.sh)
+//   quillo check            checks every file it uses, without running
+//
+// - A form posts to a route, which answers with a redirect (303), so a reload does
+//   not send it again; a mistake answers 422 with the form as it was filled in.
+// - The notes are in SQLite, in app.db, made by migrations/ on the first start.
+//
+//   lib/notes.qwe          the Note record and its queries
+//   ui/notes.qwe           the list, the form and a note's page
+//   ui/page.qwe            the frame every page uses, in Quillo UI's theme
+//   ui/theme.qwe           Quillo UI's theme: colours, type and shapes, light and dark
+//   ui/theme_switch.qwe    System, Light or Dark, as a form, kept in a cookie
+//   migrations/            the database's tables, made once each, in order
+
+db.open("app.db")
+db.migrate("migrations")
+
+use lib/notes.qwe
+use ui/notes.qwe
+use ui/page.qwe
+use ui/theme_switch.qwe
+
+route GET / =
+    <Page title="Notes" back="/">
+        <NoteList notes={all_notes()}/>
+        <NoteForm/>
+    </Page>
+
+route POST /notes { form: { title: str, body: str } } {
+    let r = add_note(title, body)
+    is_err(r)
+        ? respond(422, <Page title="Notes" back="/"><NoteList notes={all_notes()}/><NoteForm {title} {body} problem={r.error}/></Page>)
+        : redirect(`/notes/${r}`)
+}
+
+route GET /notes/:id(int) {
+    let note = get_note(id)
+    note == null
+        ? respond(404, <Page title="Not found" back="/"><Missing/></Page>)
+        : <Page title={note.title} back={`/notes/${id}`}><NotePage {note}/></Page>
+}
+
+route POST /notes/:id(int)/delete {
+    delete_note(id)?
+    redirect("/")
+}
+
+route POST /theme { form: { theme: str, back: str } } {
+    set_theme(theme)
+    redirect(safe_back(back))
+}

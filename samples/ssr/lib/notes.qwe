@@ -1,0 +1,21 @@
+// Notes in the database: the record other files see, and its queries.
+
+type Note = { id: int, title: str, body: str, created_at: str }
+
+fn all_notes() -> list<Note> with db =
+    db.query("select id, title, body, created_at from notes order by id desc")
+
+fn get_note(id: int) -> Note? with db =
+    db.one("select id, title, body, created_at from notes where id = ?", id)
+
+// The new note's id, or what is wrong with it.
+fn add_note(title: str, body: str) -> int ! str with db {
+    let t = trim(title)
+    if t == "" { return err("a note needs a title") }
+    if len(t) > 120 { return err("keep the title under 120 characters") }
+    if len(body) > 5000 { return err("keep the note under 5,000 characters") }
+    let row = db.one("insert into notes (title, body) values (?, ?) returning id", t, trim(body))?
+    row.id
+}
+
+fn delete_note(id: int) with db = db.exec("delete from notes where id = ?", id)

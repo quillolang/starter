@@ -1,0 +1,20 @@
+// A Quillo program. This file is the program: the files it uses and its routes.
+//
+//   ./run.sh --watch        then open http://127.0.0.1:8080 (get-quillo wrote run.sh)
+//   quillo check            checks every file it uses, without running
+//
+//   lib/greet.qwe          functions, for the server and the browser
+//   ui/page.qwe            the frame every page uses, and a component
+//   ui/theme.qwe           Quillo UI's theme: colours, type and shapes, light and dark
+//   ui/theme_switch.qwe    System, Light or Dark, kept in a cookie
+
+use lib/greet.qwe
+use ui/page.qwe
+
+route GET / =
+    <Page title="hello">
+        <h1>{greeting("world")}</h1>
+        <Counter start={0}/>
+    </Page>
+
+route GET /hello/:name = greeting(name)
