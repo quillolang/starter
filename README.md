@@ -65,7 +65,8 @@ get-quillo.ps1               the same, on Windows, with run.cmd
 ```
 
 Each tag is a Quillo release (`v0.6.0`), and the samples are written for it. `main` may
-use what only the next release has.
+use what only the next release has. An AI assistant reads AGENTS.md (CLAUDE.md points
+there), which sends it to the release's own guide, at quillolang.org/v0.6.0/llms.txt.
 
 To restyle a sample, set Quillo UI's variables after its styles, in `ui/page.qwe`:
 `:root { --ui-accent: #0a7d55; --ui-radius: 4px; }`. Its components are at
@@ -74,8 +75,10 @@ needs the release after 0.6.
 
 ## Next
 
-- The [user guide](https://github.com/quillolang/quillo/blob/main/USERGUIDE.md): the
-  language, components, routes, databases and the standard library.
+- The [user guide](https://github.com/quillolang/quillo/blob/v0.6.0/USERGUIDE.md) of
+  0.6.0, the release the samples are written for: the language, components, routes,
+  databases and the standard library. [Main's guide](https://github.com/quillolang/quillo/blob/main/USERGUIDE.md)
+  describes the next release, and marks what 0.6.0 does not have *since 0.7*.
 - [quillolang/examples](https://github.com/quillolang/examples): small programs, a file
   each: a to-do list, live notes, a single-page app, a virtual list of a million rows, and more.
 - A to-do app laid out across folders, with a database, migrations, CSS and JavaScript:
