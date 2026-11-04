@@ -18,7 +18,7 @@ $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$version = if ($env:QUILLO_VERSION) { $env:QUILLO_VERSION } else { "v0.6.0" }
+$version = if ($env:QUILLO_VERSION) { $env:QUILLO_VERSION } else { "v0.7.0" }
 $releases = if ($env:QUILLO_RELEASES) { $env:QUILLO_RELEASES } else { "https://github.com/quillolang/quillo/releases/download" }
 $bin = Join-Path $PSScriptRoot ".quillo\bin"
 $exe = Join-Path $bin "quillo.exe"

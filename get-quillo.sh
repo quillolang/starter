@@ -16,7 +16,7 @@
 # to download from (a mirror, or a folder as file:///...).
 set -eu
 
-version=${QUILLO_VERSION:-v0.6.0}
+version=${QUILLO_VERSION:-v0.7.0}
 releases=${QUILLO_RELEASES:-https://github.com/quillolang/quillo/releases/download}
 here=$(cd "$(dirname "$0")" && pwd)
 bin="$here/.quillo/bin"
@@ -88,17 +88,16 @@ case "$os" in
             x86_64) target=x86_64-apple-darwin ;;
         esac ;;
     Linux)
-        # The Linux builds are linked against glibc 2.34 or later (they are made on
-        # Ubuntu 22.04): Alpine's musl cannot run them, nor Ubuntu 20.04, Debian 11
-        # or RHEL 8, which would fail with "GLIBC_2.34 not found".
+        # The Linux builds of 0.7.0 are linked against glibc 2.17: CentOS 7, CloudLinux 7
+        # and anything newer runs them. Alpine's musl cannot (0.6.0's needed 2.34).
         glibc=$(getconf GNU_LIBC_VERSION 2>/dev/null | sed -n 's/^glibc \([0-9]*\)\.\([0-9]*\).*/\1 \2/p')
         if [ -z "$glibc" ]; then
             echo "get-quillo: Quillo's Linux builds need glibc, which this system does not have; $source_build" >&2
             exit 1
         fi
         set -- $glibc
-        if [ "$1" -lt 2 ] || { [ "$1" -eq 2 ] && [ "$2" -lt 34 ]; }; then
-            echo "get-quillo: Quillo's Linux builds need glibc 2.34 or later, and this system has $1.$2; $source_build" >&2
+        if [ "$1" -lt 2 ] || { [ "$1" -eq 2 ] && [ "$2" -lt 17 ]; }; then
+            echo "get-quillo: Quillo's Linux builds need glibc 2.17 or later, and this system has $1.$2; $source_build" >&2
             exit 1
         fi
         case "$cpu" in
