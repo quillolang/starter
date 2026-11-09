@@ -17,7 +17,7 @@ light or dark setting of the computer.
 ## Start
 
 ```sh
-git clone --depth 1 --branch v0.8.0 https://github.com/quillolang/starter.git my-app
+git clone --depth 1 --branch v0.8.1 https://github.com/quillolang/starter.git my-app
 cd my-app
 rm -rf .git && git init     # your own history: a clone would still push to quillolang/starter
 sh get-quillo.sh            # asks which sample; or: sh get-quillo.sh spa
@@ -64,22 +64,22 @@ get-quillo.ps1               the same, on Windows, with run.cmd
 .github/starter-test.sh      the starter's own checks of each sample; an app can delete it
 ```
 
-Each tag is a Quillo release (`v0.8.0`), and the samples are written for it. `main` may
+Each tag is a Quillo release (`v0.8.1`), and the samples are written for it. `main` may
 use what only the next release has. An AI assistant reads AGENTS.md (CLAUDE.md points
-there), which sends it to the release's own guide, at quillolang.org/v0.8.0/llms.txt.
+there), which sends it to the release's own guide, at quillolang.org/v0.8.1/llms.txt.
 
 To restyle a sample, set Quillo UI's variables after its styles, in `ui/page.qwe`:
 `:root { --ui-accent: #0a7d55; --ui-radius: 4px; }`. Its components are at
-[quillolang.org/components](https://quillolang.org/components/); 0.8.0 takes them file by
+[quillolang.org/components](https://quillolang.org/components/); 0.8.1 takes them file by
 file.
 
 ## Next
 
-- The [user guide](https://github.com/quillolang/quillo/blob/v0.8.0/USERGUIDE.md) of
-  0.8.0, the release the samples are written for: the language, components, routes,
+- The [user guide](https://github.com/quillolang/quillo/blob/v0.8.1/USERGUIDE.md) of
+  0.8.1, the release the samples are written for: the language, components, routes,
   databases and the standard library. [Main's guide](https://github.com/quillolang/quillo/blob/main/USERGUIDE.md)
   describes what main has since.
 - [quillolang/examples](https://github.com/quillolang/examples): small programs, a file
   each: a to-do list, live notes, a single-page app, a virtual list of a million rows, and more.
 - A to-do app laid out across folders, with a database, migrations, CSS and JavaScript:
-  [`app/`](https://github.com/quillolang/quillo/tree/v0.8.0/app) in Quillo's own repository.
+  [`app/`](https://github.com/quillolang/quillo/tree/v0.8.1/app) in Quillo's own repository.
