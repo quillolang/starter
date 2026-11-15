@@ -2,9 +2,9 @@
 
 This is a [Quillo](https://quillolang.org) program: `.qwe` files hold the server's routes,
 the HTML, the components that run in the browser and the SQL. Quillo is new, so read
-https://quillolang.org/v0.8.4/llms.txt before writing any: the guide and every builtin of
-Quillo 0.8.4, the release this program is written for (`get-quillo.sh` fetches it).
-https://quillolang.org/llms.txt describes Quillo's main, which may have more than 0.8.4:
+https://quillolang.org/v0.8.5/llms.txt before writing any: the guide and every builtin of
+Quillo 0.8.5, the release this program is written for (`get-quillo.sh` fetches it).
+https://quillolang.org/llms.txt describes Quillo's main, which may have more than 0.8.5:
 code from it may not run here.
 
 ## Commands

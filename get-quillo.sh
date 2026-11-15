@@ -12,11 +12,11 @@
 # It also writes run.sh, which runs this folder's main.qwe with that quillo,
 # unless there is a run.sh already.
 #
-# QUILLO_VERSION=v0.8.4 takes another release; QUILLO_RELEASES another place
+# QUILLO_VERSION=v0.8.5 takes another release; QUILLO_RELEASES another place
 # to download from (a mirror, or a folder as file:///...).
 set -eu
 
-version=${QUILLO_VERSION:-v0.8.4}
+version=${QUILLO_VERSION:-v0.8.5}
 releases=${QUILLO_RELEASES:-https://github.com/quillolang/quillo/releases/download}
 here=$(cd "$(dirname "$0")" && pwd)
 bin="$here/.quillo/bin"
@@ -88,7 +88,7 @@ case "$os" in
             x86_64) target=x86_64-apple-darwin ;;
         esac ;;
     Linux)
-        # The Linux builds of 0.8.4 are linked against glibc 2.17: CentOS 7, CloudLinux 7
+        # The Linux builds of 0.8.5 are linked against glibc 2.17: CentOS 7, CloudLinux 7
         # and anything newer runs them. Alpine's musl cannot (0.6.0's needed 2.34).
         glibc=$(getconf GNU_LIBC_VERSION 2>/dev/null | sed -n 's/^glibc \([0-9]*\)\.\([0-9]*\).*/\1 \2/p')
         if [ -z "$glibc" ]; then
