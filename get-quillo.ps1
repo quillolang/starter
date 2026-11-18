@@ -12,13 +12,13 @@
 # unless there is a run.cmd already. (A .cmd, not a .ps1: it runs in cmd and in
 # PowerShell alike, with no execution policy to get past.)
 #
-# $env:QUILLO_VERSION = "v0.8.6" takes another release; $env:QUILLO_RELEASES
+# $env:QUILLO_VERSION = "v0.8.7" takes another release; $env:QUILLO_RELEASES
 # another place to download from.
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$version = if ($env:QUILLO_VERSION) { $env:QUILLO_VERSION } else { "v0.8.6" }
+$version = if ($env:QUILLO_VERSION) { $env:QUILLO_VERSION } else { "v0.8.7" }
 $releases = if ($env:QUILLO_RELEASES) { $env:QUILLO_RELEASES } else { "https://github.com/quillolang/quillo/releases/download" }
 $bin = Join-Path $PSScriptRoot ".quillo\bin"
 $exe = Join-Path $bin "quillo.exe"
