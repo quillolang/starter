@@ -54,7 +54,7 @@ component TasksTab() {
                 problem = null
             }
         }}>
-            <input bind:value={draft} placeholder="Something to do" aria-label="New task"/>
+            <input value={draft} placeholder="Something to do" aria-label="New task"/>
             <button>Add</button>
         </form>
         {problem && <p.problem>{problem}</p>}
@@ -147,7 +147,7 @@ component App(theme: str) {
                 "notes" =>
                     <section>
                         <h2>Notes</h2>
-                        <textarea.note bind:value={note} maxlength="20000" placeholder="Write here, reload, come back tomorrow" aria-label="Note"></textarea>
+                        <textarea.note value={note} maxlength="20000" placeholder="Write here, reload, come back tomorrow" aria-label="Note"></textarea>
                         <p class="muted">{len(note)} characters · {note_problem != null ? `Not saved: ${note_problem}` : note == saved ? "Saved" : "Saving…"}. Kept in
                         the app's database (SQLite) half a second after you stop typing, so a reload or
                         a restart keeps it; every visitor sees the same note, as with the tasks.</p>

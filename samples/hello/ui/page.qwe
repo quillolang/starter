@@ -41,5 +41,5 @@ view Page(title: str, description: str, children) =
 
 component Counter(start: int) {
     state count = start
-    <button.counter @click={() => { count += 1 }}>Clicked {count} times</button>
+    <button.counter onclick={() => { count += 1 }}>Clicked {count} times</button>
 }

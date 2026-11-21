@@ -44,6 +44,6 @@ component ThemeSwitch(start: str = "system") {
     }
     <div.theme-switch role="group" aria-label="Theme">
         {for [t, name] in [["system", "System"], ["light", "Light"], ["dark", "Dark"]] =>
-            <button type="button" key={t} aria-pressed={theme == t ? "true" : "false"} @click={() => choose(t)}>{name}</button>}
+            <button type="button" key={t} aria-pressed={theme == t ? "true" : "false"} onclick={() => choose(t)}>{name}</button>}
     </div>
 }
